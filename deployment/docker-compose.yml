@@ -1,0 +1,30 @@
+---
+version: "3"
+services:
+#  minio:
+#    image: docker.arvancloud.ir/minio/minio
+#    environment:
+#      - MINIO_ROOT_USER=minioadmin
+#      - MINIO_ROOT_PASSWORD=minioadmin
+#      - MINIO_ACCESS_KEY=access
+#      - MINIO_SECRET_KEY=topsecret
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    command: server /data --console-address ":9001"
+
+  mysql:
+    image: docker.arvancloud.ir/mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: musiccloudRoo7t0lk2o20
+      MYSQL_DATABASE: music_cloud_db
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: devt0lk2o20
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - music_cloud_volume:/var/lib/mysql
+
+volumes:
+  music_cloud_volume:
