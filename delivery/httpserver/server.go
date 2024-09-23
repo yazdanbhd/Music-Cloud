@@ -15,6 +15,7 @@ func main() {
 	userGroup := e.Group("/api/users")
 
 	userGroup.POST("/register", handler.UserRegister)
+	userGroup.POST("/login", handler.UserLogin)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

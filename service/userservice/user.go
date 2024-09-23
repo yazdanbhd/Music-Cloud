@@ -1,9 +1,14 @@
 package userservice
 
-import "github.com/yazdanbhd/Music-Cloud/entity"
+import (
+	"github.com/golang-jwt/jwt"
+	"github.com/yazdanbhd/Music-Cloud/delivery/authjwt"
+	"github.com/yazdanbhd/Music-Cloud/entity"
+)
 
 type Repository interface {
 	Register(u entity.User) (entity.User, error)
+	IsAuthenticated(userName, password string) (bool, error)
 }
 
 type RegisterRequest struct {
@@ -15,6 +20,15 @@ type RegisterRequest struct {
 type RegisterResponse struct {
 	Name   string `json:"name"`
 	UserID uint   `json:"user_id"`
+}
+
+type LoginRequest struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	AccessToken string `json:"access_token"`
 }
 
 type Service struct {
@@ -38,4 +52,22 @@ func (s *Service) UserRegister(req RegisterRequest) (RegisterResponse, error) {
 		return RegisterResponse{}, err
 	}
 	return RegisterResponse{UserID: u.ID, Name: u.Name}, nil
+}
+
+func (s *Service) UserLogin(loginReq LoginRequest) (LoginResponse, error) {
+	isAuth, err := s.repo.IsAuthenticated(loginReq.Name, loginReq.Password)
+
+	if err != nil || isAuth == false {
+		return LoginResponse{}, err
+	}
+
+	token := authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)
+
+	tokenString, err := token.CreateToken(loginReq.Name)
+
+	if err != nil {
+		return LoginResponse{}, err
+	}
+
+	return LoginResponse{AccessToken: tokenString}, nil
 }
