@@ -6,16 +6,23 @@ import (
 	"time"
 )
 
-var secretKey = []byte("secret-key")
+type Token struct {
+	secretKey  []byte
+	signMethod jwt.SigningMethod
+}
 
-func CreateToken(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+func New(secretKey []byte, signMethod jwt.SigningMethod) Token {
+	return Token{secretKey: secretKey, signMethod: signMethod}
+}
+
+func (t Token) CreateToken(username string) (string, error) {
+	token := jwt.NewWithClaims(t.signMethod,
 		jwt.MapClaims{
 			"username": username,
 			"exp":      time.Now().Add(time.Hour * 24).Unix(),
 		})
 
-	tokenString, err := token.SignedString(secretKey)
+	tokenString, err := token.SignedString(t.secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -23,9 +30,9 @@ func CreateToken(username string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyToken(tokenString string) error {
+func (t Token) VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
+		return t.secretKey, nil
 	})
 
 	if err != nil {
