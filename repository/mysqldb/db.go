@@ -27,6 +27,8 @@ func New(config Config) (*MySQLDB, error) {
 		return &MySQLDB{}, fmt.Errorf("can't open mysql db: %v", err)
 	}
 
+	defer db.Close()
+
 	// See "Important settings" section.
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
