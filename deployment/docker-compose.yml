@@ -1,17 +1,17 @@
 ---
 version: "3"
 services:
-#  minio:
-#    image: docker.arvancloud.ir/minio/minio
-#    environment:
-#      - MINIO_ROOT_USER=minioadmin
-#      - MINIO_ROOT_PASSWORD=minioadmin
-#      - MINIO_ACCESS_KEY=access
-#      - MINIO_SECRET_KEY=topsecret
-#    ports:
-#      - "9000:9000"
-#      - "9001:9001"
-#    command: server /data --console-address ":9001"
+  minio:
+    image: docker.arvancloud.ir/minio/minio
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ACCESS_KEY=access
+      - MINIO_SECRET_KEY=topsecret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
 
   mysql:
     image: docker.arvancloud.ir/mysql:8.0

@@ -1,21 +1,31 @@
-package main
+package httpserver
 
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/yazdanbhd/Music-Cloud/delivery/httpserver/handler"
+	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
 )
 
-func main() {
+type Server struct {
+	dbConfig mysqldb.Config
+}
+
+func New(dbConfig mysqldb.Config) Server {
+	return Server{dbConfig: dbConfig}
+}
+
+func (s Server) Run() {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	userGroup := e.Group("/api/users")
+	userGroup.POST("/register", s.UserRegister)
+	userGroup.POST("/login", s.UserLogin)
 
-	userGroup.POST("/register", handler.UserRegister)
-	userGroup.POST("/login", handler.UserLogin)
+	musicGroup := e.Group("/api/music")
+	musicGroup.POST("/upload", s.UploadMusic)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
