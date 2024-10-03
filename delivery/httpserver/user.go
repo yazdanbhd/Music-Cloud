@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
@@ -68,29 +69,24 @@ func (s Server) UploadMusic(c echo.Context) error {
 	accessToken = strings.Replace(accessToken, "Bearer ", "", -1)
 
 	token := authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)
-	verifyErr := token.VerifyToken(accessToken)
+	claims, err := token.VerifyToken(accessToken)
 
-	if verifyErr != nil {
+	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized)
 	}
 
 	// Minio Connection
 	ctx := context.Background()
 
-	endpoint := "localhost:9000"
-	accessKeyID := "AXv9sDkbvdPv7uN8TD1e"
-	secretAccessKey := "l0vqlWnBxiQLAcaipuY6lhVeUd81WAQ10LytaJrM"
-
 	// Initialize minio client object.
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
+
+	minioClient, err := minio.New(s.minioConfig.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(s.minioConfig.AccessKeyID, s.minioConfig.SecretAccessKey, ""),
+		Secure: s.minioConfig.UserSSL,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		return echo.NewHTTPError(http.StatusBadGateway, err)
 	}
-
-	log.Printf("%#v\n", minioClient)
 
 	bucketName := "music"
 	location := "us-east-1"
@@ -102,10 +98,8 @@ func (s Server) UploadMusic(c echo.Context) error {
 		if errBucketExists == nil && exists {
 			log.Printf("We already own %s\n", bucketName)
 		} else {
-			log.Fatalln(err)
+			return echo.NewHTTPError(http.StatusBadGateway, err)
 		}
-	} else {
-		log.Printf("Successfully created %s\n", bucketName)
 	}
 
 	file, metaData, err := c.Request().FormFile("file")
@@ -117,17 +111,17 @@ func (s Server) UploadMusic(c echo.Context) error {
 	// TODO - Use Regex to check if the file is in [Png, Jpg, Jpeg] format.
 	// TODO - Apply limitation for the size of upload file. => We can use API Gateway or apply in code.
 
-	objectName := metaData.Filename
+	username := claims["username"].(string)
+
+	objectName := fmt.Sprintf("%s/%s", username, metaData.Filename)
 	//filePath := "/tmp/testdata"
 	contentType := "application/octet-stream"
 
 	info, err := minioClient.PutObject(ctx, bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: contentType})
 
 	if err != nil {
-		log.Fatalln(err)
+		return echo.NewHTTPError(http.StatusBadGateway, err)
 	}
-
-	log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 
 	return c.JSON(http.StatusCreated, info)
 }

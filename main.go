@@ -4,6 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/yazdanbhd/Music-Cloud/delivery/httpserver"
 	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
+	"github.com/yazdanbhd/Music-Cloud/repository/s3/minios3"
 	"log"
 	"os"
 	"strconv"
@@ -25,7 +26,14 @@ func main() {
 		DBName:   os.Getenv("DB_NAME"),
 	}
 
-	server := httpserver.New(dbConfig)
+	minioConfig := minios3.Config{
+		Endpoint:        "localhost:9000",
+		AccessKeyID:     "AXv9sDkbvdPv7uN8TD1e",
+		SecretAccessKey: "l0vqlWnBxiQLAcaipuY6lhVeUd81WAQ10LytaJrM",
+		UserSSL:         false,
+	}
+
+	server := httpserver.New(dbConfig, minioConfig)
 
 	server.Run()
 }

@@ -4,14 +4,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
+	"github.com/yazdanbhd/Music-Cloud/repository/s3/minios3"
 )
 
 type Server struct {
-	dbConfig mysqldb.Config
+	dbConfig    mysqldb.Config
+	minioConfig minios3.Config
 }
 
-func New(dbConfig mysqldb.Config) Server {
-	return Server{dbConfig: dbConfig}
+func New(dbConfig mysqldb.Config, minioConfig minios3.Config) Server {
+	return Server{dbConfig: dbConfig, minioConfig: minioConfig}
 }
 
 func (s Server) Run() {
