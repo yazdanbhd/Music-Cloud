@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
@@ -79,8 +78,8 @@ func (s Server) UploadMusic(c echo.Context) error {
 	ctx := context.Background()
 
 	endpoint := "localhost:9000"
-	accessKeyID := "tcazzdiIuNJmgmCjXVdm"
-	secretAccessKey := "WV2oRUF3NkRadBBuJvo6ifXBGM67roVxyXTeBcbD"
+	accessKeyID := "AXv9sDkbvdPv7uN8TD1e"
+	secretAccessKey := "l0vqlWnBxiQLAcaipuY6lhVeUd81WAQ10LytaJrM"
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
@@ -91,7 +90,8 @@ func (s Server) UploadMusic(c echo.Context) error {
 		log.Fatalln(err)
 	}
 
-	// Make a new bucket called testbucket.
+	log.Printf("%#v\n", minioClient)
+
 	bucketName := "music"
 	location := "us-east-1"
 
@@ -108,22 +108,21 @@ func (s Server) UploadMusic(c echo.Context) error {
 		log.Printf("Successfully created %s\n", bucketName)
 	}
 
-	file, header, err := c.Request().FormFile("file")
+	file, metaData, err := c.Request().FormFile("file")
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
-	fmt.Println(header)
 
-	// Upload the test file
-	// Change the value of filePath if the file is in another location
-	objectName := "testdata.jpg"
+	// TODO - Use Regex to check if the file is in [Png, Jpg, Jpeg] format.
+	// TODO - Apply limitation for the size of upload file. => We can use API Gateway or apply in code.
+
+	objectName := metaData.Filename
 	//filePath := "/tmp/testdata"
 	contentType := "application/octet-stream"
 
-	info, err := minioClient.PutObject(ctx, bucketName, objectName, file, 16, minio.PutObjectOptions{ContentType: contentType})
+	info, err := minioClient.PutObject(ctx, bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: contentType})
 
-	// Upload the test file with FPutObject
-	//info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)
 	}
