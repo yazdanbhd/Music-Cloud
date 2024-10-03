@@ -108,7 +108,7 @@ func (s Server) UploadMusic(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	// TODO - Use Regex to check if the file is in [Png, Jpg, Jpeg] format.
+	// TODO - Use Regex to check if the file is in [mp3] format.
 	// TODO - Apply limitation for the size of upload file. => We can use API Gateway or apply in code.
 
 	username := claims["username"].(string)
