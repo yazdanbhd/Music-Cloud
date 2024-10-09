@@ -9,21 +9,23 @@ import (
 type Repository interface {
 	Register(u entity.User) (entity.User, error)
 	IsAuthenticated(userName, password string) (bool, error)
+	GetUserID(userName string) (uint, error)
 }
 
 type RegisterRequest struct {
 	PhoneNumber string `json:"phone_number"`
 	Name        string `json:"name"`
+	UserName    string `json:"user_name"`
 	Password    string `json:"password"`
 }
 
 type RegisterResponse struct {
-	Name   string `json:"name"`
-	UserID uint   `json:"user_id"`
+	UserName string `json:"user_name"`
+	UserID   uint   `json:"user_id"`
 }
 
 type LoginRequest struct {
-	Name     string `json:"name"`
+	UserName string `json:"user_name"`
 	Password string `json:"password"`
 }
 
@@ -46,16 +48,17 @@ func (s *Service) UserRegister(req RegisterRequest) (RegisterResponse, error) {
 		Password:    req.Password,
 		PhoneNumber: req.PhoneNumber,
 		Name:        req.Name,
+		UserName:    req.UserName,
 	}
 	u, err := s.repo.Register(user)
 	if err != nil {
 		return RegisterResponse{}, err
 	}
-	return RegisterResponse{UserID: u.ID, Name: u.Name}, nil
+	return RegisterResponse{UserID: u.ID, UserName: u.UserName}, nil
 }
 
 func (s *Service) UserLogin(loginReq LoginRequest) (LoginResponse, error) {
-	isAuth, err := s.repo.IsAuthenticated(loginReq.Name, loginReq.Password)
+	isAuth, err := s.repo.IsAuthenticated(loginReq.UserName, loginReq.Password)
 
 	if err != nil || isAuth == false {
 		return LoginResponse{}, err
@@ -63,7 +66,7 @@ func (s *Service) UserLogin(loginReq LoginRequest) (LoginResponse, error) {
 
 	token := authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)
 
-	tokenString, err := token.CreateToken(loginReq.Name)
+	tokenString, err := token.CreateToken(loginReq.UserName)
 
 	if err != nil {
 		return LoginResponse{}, err
