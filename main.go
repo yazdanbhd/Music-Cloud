@@ -27,9 +27,9 @@ func main() {
 	}
 
 	minioConfig := minios3.Config{
-		Endpoint:        "localhost:9000",
-		AccessKeyID:     "AXv9sDkbvdPv7uN8TD1e",
-		SecretAccessKey: "l0vqlWnBxiQLAcaipuY6lhVeUd81WAQ10LytaJrM",
+		Endpoint:        os.Getenv("MINIO_ENDPOINT"),
+		AccessKeyID:     os.Getenv("MINIO_ACCESS_KEY"),
+		SecretAccessKey: os.Getenv("MINIO_SECRET_KEY"),
 		UserSSL:         false,
 	}
 

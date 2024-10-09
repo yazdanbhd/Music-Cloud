@@ -12,6 +12,7 @@ import (
 	"github.com/yazdanbhd/Music-Cloud/service/userservice"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
@@ -104,11 +105,15 @@ func (s Server) UploadMusic(c echo.Context) error {
 
 	file, metaData, err := c.Request().FormFile("file")
 
+	fileExt := filepath.Ext(metaData.Filename)
+	if fileExt != ".mp3" {
+		return echo.NewHTTPError(http.StatusBadRequest, "The file is not in mp3 format")
+	}
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	// TODO - Use Regex to check if the file is in [mp3] format.
 	// TODO - Apply limitation for the size of upload file. => We can use API Gateway or apply in code.
 
 	username := claims["username"].(string)
