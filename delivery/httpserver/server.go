@@ -3,17 +3,15 @@ package httpserver
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
-	"github.com/yazdanbhd/Music-Cloud/repository/s3/minios3"
+	"github.com/yazdanbhd/Music-Cloud/config"
 )
 
 type Server struct {
-	dbConfig    mysqldb.Config
-	minioConfig minios3.Config
+	cfg config.Config
 }
 
-func New(dbConfig mysqldb.Config, minioConfig minios3.Config) Server {
-	return Server{dbConfig: dbConfig, minioConfig: minioConfig}
+func New(cfg config.Config) Server {
+	return Server{cfg: cfg}
 }
 
 func (s Server) Run() {

@@ -23,7 +23,7 @@ func (s Server) UserRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	db, err := mysqldb.New(s.dbConfig)
+	db, err := mysqldb.New(s.cfg.DataBase)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 
@@ -48,7 +48,7 @@ func (s Server) UserLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	db, err := mysqldb.New(s.dbConfig)
+	db, err := mysqldb.New(s.cfg.DataBase)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 
@@ -81,9 +81,9 @@ func (s Server) UploadMusic(c echo.Context) error {
 
 	// Initialize minio client object.
 
-	minioClient, err := minio.New(s.minioConfig.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(s.minioConfig.AccessKeyID, s.minioConfig.SecretAccessKey, ""),
-		Secure: s.minioConfig.UserSSL,
+	minioClient, err := minio.New(s.cfg.MinioS3.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(s.cfg.MinioS3.AccessKeyID, s.cfg.MinioS3.SecretAccessKey, ""),
+		Secure: s.cfg.MinioS3.UserSSL,
 	})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadGateway, err)

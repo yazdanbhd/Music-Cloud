@@ -1,0 +1,13 @@
+config:
+  minio:
+    endpoint: "localhost:9000"
+    secret_access_key: "lP5xHPZsVxl0I6Na6obat88YcXsEToBVhEZN2RwW"
+    access_key_id: "j0rwV7ikKIfO5kA1qxGN"
+    user_ssl: false
+
+  db:
+    user_name: "root"
+    password: "musiccloudRoo7t0lk2o20"
+    port: 3306
+    host: "localhost"
+    db_name: "music_cloud_db"

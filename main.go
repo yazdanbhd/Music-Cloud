@@ -1,39 +1,14 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
+	"github.com/yazdanbhd/Music-Cloud/config"
 	"github.com/yazdanbhd/Music-Cloud/delivery/httpserver"
-	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
-	"github.com/yazdanbhd/Music-Cloud/repository/s3/minios3"
-	"log"
-	"os"
-	"strconv"
 )
 
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	dbConfig := mysqldb.Config{
-		Host:     os.Getenv("DB_HOST"),
-		Port:     port,
-		Username: os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   os.Getenv("DB_NAME"),
-	}
-
-	minioConfig := minios3.Config{
-		Endpoint:        os.Getenv("MINIO_ENDPOINT"),
-		AccessKeyID:     os.Getenv("MINIO_ACCESS_KEY"),
-		SecretAccessKey: os.Getenv("MINIO_SECRET_KEY"),
-		UserSSL:         false,
-	}
-
-	server := httpserver.New(dbConfig, minioConfig)
+	cfg := config.New("config.yml")
+	server := httpserver.New(cfg)
 
 	server.Run()
 }
