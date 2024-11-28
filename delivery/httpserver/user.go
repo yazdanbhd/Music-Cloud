@@ -7,13 +7,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/yazdanbhd/Music-Cloud/delivery/authjwt"
 	"github.com/yazdanbhd/Music-Cloud/repository/mysqldb"
 	"github.com/yazdanbhd/Music-Cloud/service/userservice"
 	"log"
 	"net/http"
 	"path/filepath"
-	"strings"
 )
 
 func (s Server) UserRegister(c echo.Context) error {
@@ -64,17 +62,21 @@ func (s Server) UserLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+func getClaims(c echo.Context) *jwt.MapClaims {
+	return c.Get("user").(*jwt.MapClaims)
+}
+
 func (s Server) UploadMusic(c echo.Context) error {
 	// Get the access token from the header
-	accessToken := c.Request().Header.Get("Authorization")
-	accessToken = strings.Replace(accessToken, "Bearer ", "", -1)
-
-	token := authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)
-	claims, err := token.VerifyToken(accessToken)
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized)
-	}
+	//accessToken := c.Request().Header.Get("Authorization")
+	//accessToken = strings.Replace(accessToken, "Bearer ", "", -1)
+	//
+	//token := authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)
+	//claims, err := token.VerifyToken(accessToken)
+	//
+	//if err != nil {
+	//	return echo.NewHTTPError(http.StatusUnauthorized)
+	//}
 
 	// Minio Connection
 	ctx := context.Background()
@@ -116,7 +118,9 @@ func (s Server) UploadMusic(c echo.Context) error {
 
 	// TODO - Apply limitation for the size of upload file. => We can use API Gateway or apply in code.
 
-	username := claims["username"].(string)
+	claims := getClaims(c)
+
+	username := (*claims)["username"].(string)
 
 	objectName := fmt.Sprintf("%s/%s", username, metaData.Filename)
 	//filePath := "/tmp/testdata"

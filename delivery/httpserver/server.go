@@ -1,9 +1,11 @@
 package httpserver
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/yazdanbhd/Music-Cloud/config"
+	"github.com/yazdanbhd/Music-Cloud/delivery/authjwt"
+	"github.com/yazdanbhd/Music-Cloud/delivery/httpserver/middleware"
 )
 
 type Server struct {
@@ -17,6 +19,7 @@ func New(cfg config.Config) Server {
 func (s Server) Run() {
 	e := echo.New()
 
+	// Use echo middlewares
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -25,7 +28,8 @@ func (s Server) Run() {
 	userGroup.POST("/login", s.UserLogin)
 
 	musicGroup := e.Group("/api/music")
-	musicGroup.POST("/upload", s.UploadMusic)
+	musicGroup.POST("/upload", s.UploadMusic, middleware.Auth(
+		authjwt.New([]byte(`secret-key`), jwt.SigningMethodHS256)))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
